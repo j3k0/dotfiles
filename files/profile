@@ -1,0 +1,25 @@
+alias ls="ls -pG"
+export EDITOR=vim
+
+alias dhaxe='docker run --name dhaxe --rm -v "$(pwd)":/tmp/haxe -w /tmp/haxe imsky/haxe haxe'
+alias git=hub
+alias qgit=git
+alias co='git checkout'
+alias lg='git lg'
+alias g='git'
+alias l='git lg --color|head -24'
+alias s='git s'
+alias b='git branch'
+alias d='git diff'
+alias p='git push'
+alias c='git commit'
+alias pft='git push --follow-tags'
+
+# Up to git root
+function g..() { _cur="`pwd`"; cd ..; while test ! -e .git && test `pwd` != '/'; do cd ..; done; _ncur="`pwd`"; cd "$_cur"; if test "$_ncur" != "/"; then cd -; fi; unset _cur; unset _ncur; }
+function pt() { papertrail -f -d 5 $* | colortail -g papertrail; }
+alias curl-json="curl -H Content-type:\ application/json"
+
+set -o vi
+bind '"jk":vi-movement-mode'
+bind -r "\e"

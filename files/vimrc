@@ -1,0 +1,246 @@
+"
+" Vundle setup
+" ------------
+
+filetype off                  " required for Vundle
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'christoomey/vim-tmux-navigator'
+
+" The following are examples of different formats supported.
+" Keep Plugin commands between vundle#begin/end.
+" plugin on GitHub repo
+" Plugin 'tpope/vim-fugitive'
+" plugin from http://vim-scripts.org/vim/scripts.html
+" Plugin 'L9'
+" Git plugin not hosted on GitHub
+" Plugin 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+" Plugin 'file:///home/gmarik/path/to/plugin'
+" The sparkup vim script is in a subdirectory of this repo called vim
+" Pass the path to set the runtimepath properly."
+" Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+" Plugin 'ascenator/L9', {'name': 'newL9'}
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+" filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just
+" :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to
+" auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+"
+" End of Vundle setup
+" -------------------
+
+" set bg=light
+set bg=dark
+:colorscheme torte
+
+set encoding=utf-8
+set nocompatible
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set shiftround
+set cino=+2,(0,t0,u0
+set backup
+
+set foldmethod=marker
+set commentstring=\ /*\ %s\ */
+set mouse=a
+
+" set guifont=Bitstream\ Vera\ Sans\ Mono\ 10
+:augroup ftgroup
+:    autocmd!
+:    autocmd BufNewFile,BufRead *.frag,*.vert,*.fp,*.vp,*.glsl setf glsl
+:    autocmd BufNewFile,BufRead *.cg setf cgsyn
+:    autocmd BufNewFile,BufRead *.as setf actionscript
+:    autocmd BufNewFile,BufRead *.as call As3()
+:    autocmd BufNewFile,BufRead *.hbs setf html
+:    autocmd BufNewFile,BufRead *.less setf css
+:    autocmd BufNewFile,BufRead *.hx setf javascript
+:augroup END
+set nofsync
+
+set wildmode=longest,list
+
+" set statusline=%t:%l\ [%{&ff}]
+set laststatus=2
+set statusline=%t:%l\ [%{strlen(&fenc)?&fenc:'none'},%{&ff}]%=Line\ %l\ (%P)
+
+" set cindent
+" set noautoindent
+set autoindent
+
+call pathogen#infect()
+syntax enable
+filetype plugin indent on
+
+set modelines=5
+set nowrap
+
+set backupdir=~/.backup,.,/tmp
+set directory=~/.backup,.,/tmp
+
+match ErrorMsg '\s\+$'
+nnoremap <Leader>rtw :%s/\s\+$//e<CR>
+
+vmap <silent> ,y y:new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/.vimreg.txt<CR>
+nmap <silent> ,y :new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/.vimreg.txt<CR>
+map <silent> ,p :sview ~/.vimreg.txt<CR>"zdddG:q!<CR>:call setreg('"', @", @z)<CR>p
+map <silent> ,P :sview ~/.vimreg.txt<CR>"zdddG:q!<CR>:call setreg('"', @", @z)<CR>P
+
+command! Psort :'{+1,'}-1sort
+
+function! Asimport()
+    let w = expand('<cword>')
+    let x = system('grep -hr \\.' . w . '\; src submodule/*/src | grep import | head -1')
+    let x = strpart(x, 0, strlen(x) - 1)
+    echom x
+    call append(3, x)
+    :4
+    :<
+    :>
+    :Psort
+    :execute "/\." . w . ';'
+endfunction
+
+"inoremap <c-i> <esc>:call Asimport()<cr>
+
+" Use 'jk' to exit the edit mode, disable escape.
+inoremap jk <esc>
+" inoremap <esc> <nop>
+
+" Insert // at the beggining of the line
+noremap ,/ ^i//<esc>
+noremap ,# :s/^/#/<CR>
+
+" Move current line up
+noremap - ddp
+" Move current line down
+noremap _ kddpk
+
+" Convert current word to uppercase
+inoremap <c-u> <esc>vbUea
+nnoremap <c-u> vbUe
+
+" Swap : and ;
+nnoremap ; :
+nnoremap : ;
+
+" Add macros for accounting
+function! Accounting()
+    nnoremap @s :call ledger#transaction_state_set(line('.'), '*')<CR>zcjjl
+    let @h = "{jjo; :heredia:jk}j"
+    let @i = "{jjo; :cash_in:jk}j"
+    let @o = "{jjo; :cash_out:jk}j"
+    let @f = "{jjo; :founders:jk}j"
+endfunction
+
+" Setup AS3 development abbreviations
+function! As3()
+    nnoremap <buffer> <LocalLeader>b :make compile<cr>
+    nnoremap <buffer> <LocalLeader>r :make run<cr>
+    nnoremap <buffer> <LocalLeader>c Opublic const 
+    nnoremap <buffer> <LocalLeader>sc Opublic static const 
+    nnoremap <buffer> <LocalLeader>v Opublic var 
+    nnoremap <buffer> <LocalLeader>sv Opublic static var 
+    nnoremap <buffer> <LocalLeader>pc Oprivate const 
+    nnoremap <buffer> <LocalLeader>psc Oprivate static const 
+    nnoremap <buffer> <LocalLeader>pv Oprivate var 
+    nnoremap <buffer> <LocalLeader>psv Oprivate static var 
+    nnoremap <buffer> <LocalLeader>f Opublic function (): {<cr>return;<cr>}<esc>b==bbi
+    nnoremap <buffer> <LocalLeader>sf Opublic static function (): {<cr>return;<cr>}<esc>b==bbi
+    nnoremap <buffer> <LocalLeader>pf Oprivate function (): {<cr>return;<cr>}<esc>b==bbi
+    nnoremap <buffer> <LocalLeader>psf Oprivate static function (): {<cr>return;<cr>}<esc>b==bbi
+    nnoremap <buffer> <LocalLeader>imp :call Asimport()<cr>
+    nnoremap <buffer> <LocalLeader>/ I// 
+
+    iabbrev ff function
+    iabbrev cc const
+    iabbrev rr return
+    iabbrev pp public
+    iabbrev vv private
+    iabbrev ss static
+    iabbrev NN Number
+    iabbrev SS String
+    iabbrev AA Array
+    iabbrev OO Object
+    iabbrev FF Function
+
+    " iabbrev const NONONO
+    " iabbrev return NONONO
+    " iabbrev public NONONO
+    " iabbrev private NONONO
+    " iabbrev static NONONO
+    " iabbrev Number NONONO
+    " iabbrev String NONONO
+    " iabbrev Array NONONO
+    " iabbrev Object NONONO
+    " iabbrev Function NONONO
+endfunction
+
+" Edit .vimrc
+" :nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+" Source .vimrc
+" :nnoremap <leader>sv :source $MYVIMRC<cr>
+
+:iabbrev wath what
+:iabbrev tehn then
+:iabbrev funciton function
+:iabbrev funcitno function
+:iabbrev functon function
+
+:vnoremap " <esc>`>a"<esc>`<i"<esc>
+:vnoremap / <esc>`>a */<esc>`<i/*   <esc>hdw==
+":nnoremap L $
+":nnoremap H ^
+
+" Disable arrow keys
+:noremap <left> <nop>
+:noremap <right> <nop>
+:noremap <up> <nop>
+:noremap <down> <nop>
+
+"
+" CtrlP setup
+"
+set runtimepath^=~/.vim/bundle/ctrlp.vim
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_working_path_mode = 'ra'
+set wildignore+=*/node_modules/*,*/tmp/*,*.so,*.swp,*.zip     " Linux/MacOSX
+"let g:ctrlp_user_command = 'find %s -type f'        " MacOSX/Linux
+
+"
+" Synaptic setup
+"
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
